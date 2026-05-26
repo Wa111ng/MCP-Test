@@ -1,18 +1,19 @@
+import asyncio
 from datetime import datetime
 import os
 
 from fastmcp import FastMCP
 from fastmcp.server.auth.providers.google import GoogleProvider
 
-PORT = os.environ.get("PORT", 8000)
+PORT = int(os.environ.get("PORT", 8000))
 
 auth = GoogleProvider(
     client_id=os.environ["GOOGLE_CLIENT_ID"],
     client_secret=os.environ["GOOGLE_CLIENT_SECRET"],
-    base_url=os.environ["BASE_URL"], 
+    base_url=os.environ["BASE_URL"],
 )
 
-mcp = FastMCP("Frontwave", host="0.0.0.0", port=PORT, auth=auth)
+mcp = FastMCP("Frontwave", auth=auth)
 
 
 @mcp.tool(description="Add 2 numbers")
@@ -31,4 +32,4 @@ def echo(message: str) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http")
+    asyncio.run(mcp.run_http_async(host="0.0.0.0", port=PORT))
