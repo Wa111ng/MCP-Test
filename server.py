@@ -55,6 +55,15 @@ async def echo(message: str) -> str:
     print(f"[echo] user={user['sub']} ({user['email']})")
     return f"Frontwave says: {message}"
 
+@mcp.tool(description="Fetch data from the Frontwave API")
+async def get_frontwave_data() -> dict:
+    user = await get_google_user()
+    print(f"[get_frontwave_data] user={user['sub']} ({user['email']})")
+    async with httpx.AsyncClient() as client:
+        resp = await client.get("https://frontwave.biz:30003/")
+        resp.raise_for_status()
+        return resp.json()
+
 
 if __name__ == "__main__":
     asyncio.run(mcp.run_http_async(host="0.0.0.0", port=PORT))
