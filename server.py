@@ -123,7 +123,7 @@ def echo(message: str, auth_token: str) -> str:
 # RUN MCP INSIDE FASTAPI
 # -------------------------
 
-app.mount("/", mcp.streamable_http_app())
+app.mount("/mcp", mcp.streamable_http_app())
 
 if __name__ == "__main__":
     import uvicorn
