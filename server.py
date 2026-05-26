@@ -1,10 +1,17 @@
 from datetime import datetime
 import os
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
+from fastmcp.server.auth.providers.google import GoogleProvider
 
 PORT = os.environ.get("PORT", 8000)
-mcp = FastMCP("Frontwave", host="0.0.0.0", port=PORT)
+
+auth = GoogleProvider(
+    client_id=os.environ["GOOGLE_CLIENT_ID"],
+    client_secret=os.environ["GOOGLE_CLIENT_SECRET"],
+)
+
+mcp = FastMCP("Frontwave", host="0.0.0.0", port=PORT, auth=auth)
 
 
 @mcp.tool(description="Add 2 numbers")
