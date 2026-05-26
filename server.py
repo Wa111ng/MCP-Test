@@ -1,6 +1,10 @@
 from datetime import datetime
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()  # ONLY affects local development
+
 from fastapi import FastAPI, Request, HTTPException
 from starlette.responses import RedirectResponse
 
@@ -10,28 +14,30 @@ from itsdangerous import URLSafeSerializer
 from mcp.server.fastmcp import FastMCP
 
 # -------------------------
-# ENV
+# CONFIG
 # -------------------------
 
-PORT = int(os.environ.get("PORT", 8000))
+PORT = int(os.getenv("PORT", 8000))
 
-GOOGLE_CLIENT_ID = os.environ["GOOGLE_CLIENT_ID"]
-GOOGLE_CLIENT_SECRET = os.environ["GOOGLE_CLIENT_SECRET"]
-SECRET_KEY = os.environ["SECRET_KEY"]
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+SECRET_KEY = os.getenv("SECRET_KEY")
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 
-BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
+if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET or not SECRET_KEY:
+    raise RuntimeError("Missing required environment variables")
 
 # -------------------------
-# APP + MCP
+# APP SETUP
 # -------------------------
 
 app = FastAPI()
-mcp = FastMCP("Frontwave", host="0.0.0.0", port=PORT)
+mcp = FastMCP("Frontwave")
 
 serializer = URLSafeSerializer(SECRET_KEY, salt="session")
 
 # -------------------------
-# GOOGLE OAUTH SETUP
+# GOOGLE OAUTH
 # -------------------------
 
 oauth = OAuth()
@@ -67,7 +73,7 @@ def require_user(request: Request):
 
 
 # -------------------------
-# OAUTH ROUTES
+# ROUTES
 # -------------------------
 
 
@@ -88,7 +94,7 @@ async def callback(request: Request):
     userinfo = token.get("userinfo")
 
     if not userinfo:
-        raise HTTPException(status_code=400, detail="No user info")
+        raise HTTPException(status_code=400, detail="No user info from Google")
 
     session_token = serializer.dumps(
         {
@@ -99,7 +105,12 @@ async def callback(request: Request):
     )
 
     response = RedirectResponse(url="/")
-    response.set_cookie("session", session_token, httponly=True)
+    response.set_cookie(
+        key="session",
+        value=session_token,
+        httponly=True,
+        secure=False,  # set True in production (HTTPS)
+    )
 
     return response
 
@@ -128,8 +139,12 @@ def echo(message: str, request: Request) -> str:
 
 
 # -------------------------
-# RUN
+# RUN (IMPORTANT)
 # -------------------------
 
+app.mount("/", mcp.streamable_http_app())
+
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http")
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
