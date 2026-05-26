@@ -1,2 +1,7 @@
 mcp
+fastapi
+uvicorn
+authlib
+itsdangerous
 google-auth
+requests
