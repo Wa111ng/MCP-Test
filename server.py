@@ -9,6 +9,7 @@ PORT = os.environ.get("PORT", 8000)
 auth = GoogleProvider(
     client_id=os.environ["GOOGLE_CLIENT_ID"],
     client_secret=os.environ["GOOGLE_CLIENT_SECRET"],
+    base_url=os.environ["BASE_URL"], 
 )
 
 mcp = FastMCP("Frontwave", host="0.0.0.0", port=PORT, auth=auth)
