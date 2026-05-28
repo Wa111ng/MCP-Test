@@ -59,8 +59,15 @@ async def echo(message: str) -> str:
 async def get_frontwave_data() -> dict:
     user = await get_google_user()
     print(f"[get_frontwave_data] user={user['sub']} ({user['email']})")
+    payload = {
+        "sub": user["sub"],
+        "email": user["email"]
+    }
     async with httpx.AsyncClient() as client:
-        resp = await client.get("https://frontwave.biz:30003/")
+        resp = await client.post(
+            "https://frontwave.biz:30003/health",
+            json=payload
+        )
         resp.raise_for_status()
         return resp.json()
 
