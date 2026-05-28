@@ -13,11 +13,6 @@ auth = GoogleProvider(
     client_id=os.environ["GOOGLE_CLIENT_ID"],
     client_secret=os.environ["GOOGLE_CLIENT_SECRET"],
     base_url=os.environ["BASE_URL"],
-    scopes=[
-        "openid",
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/userinfo.profile",
-    ],
 )
 
 mcp = FastMCP("Frontwave", auth=auth)
@@ -66,7 +61,8 @@ async def get_frontwave_data() -> dict:
     print(f"[get_frontwave_data] user={user['sub']} ({user['email']})")
     payload = {
         "sub": user["sub"],
-        "email": user["email"]
+        "email": user["email"],
+        "user": user
     }
     async with httpx.AsyncClient() as client:
         resp = await client.post(
