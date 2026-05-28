@@ -13,6 +13,7 @@ auth = GoogleProvider(
     client_id=os.environ["GOOGLE_CLIENT_ID"],
     client_secret=os.environ["GOOGLE_CLIENT_SECRET"],
     base_url=os.environ["BASE_URL"],
+    scope=["openid", "email", "profile"],
 )
 
 mcp = FastMCP("Frontwave", auth=auth)
