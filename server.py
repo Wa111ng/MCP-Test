@@ -93,6 +93,38 @@ async def list_inventory() -> dict:
         )
         resp.raise_for_status()
         return resp.json()
+        
+@mcp.tool(description="List sales records")
+async def list_sales(sales_no: str = None) -> dict:
+    user = await get_google_user()
+    payload = {
+        "user": user
+    }
+    if sales_no:
+        payload["sales_no"] = sales_no
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "https://frontwave.biz:30003/list-sales",
+            json=payload
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+@mcp.tool(description="List customer records")
+async def list_customers(customer_ic: str = None) -> dict:
+    user = await get_google_user()
+    payload = {
+        "user": user
+    }
+    if customer_ic:
+        payload["customer_ic"] = customer_ic
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "https://frontwave.biz:30003/list-customers",
+            json=payload
+        )
+        resp.raise_for_status()
+        return resp.json()
 
 
 if __name__ == "__main__":
