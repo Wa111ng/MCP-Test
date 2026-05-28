@@ -80,6 +80,20 @@ async def get_branch() -> dict:
         resp.raise_for_status()
         return resp.json()
 
+@mcp.tool(description="List inventory")
+async def list_inventory() -> dict:
+    user = await get_google_user()
+    payload = {
+        "user": user
+    }
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "https://frontwave.biz:30003/list-inventory",
+            json=payload
+        )
+        resp.raise_for_status()
+        return resp.json()
+
 
 if __name__ == "__main__":
     asyncio.run(mcp.run_http_async(host="0.0.0.0", port=PORT))
