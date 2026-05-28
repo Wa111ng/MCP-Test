@@ -83,7 +83,7 @@ async def get_branch() -> dict:
 @mcp.tool(description="List inventory")
 async def list_inventory(
     page: int = 1,
-    limit: int = 50,
+    limit: int = 20,
     search: str = None
 ) -> dict:
     user = await get_google_user()
@@ -111,7 +111,7 @@ async def list_inventory(
 @mcp.tool(description="List sales records")
 async def list_sales(
     page: int = 1,
-    limit: int = 50,
+    limit: int = 20,
     sales_no: str = None
 ) -> dict:
     user = await get_google_user()
@@ -143,7 +143,7 @@ async def list_sales(
 async def list_customers(
     customer_ic: str = None,
     page: int = 1,
-    limit: int = 50
+    limit: int = 20
 ) -> dict:
     user = await get_google_user()
     payload = {
