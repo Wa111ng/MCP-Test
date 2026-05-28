@@ -34,30 +34,24 @@ async def get_google_user() -> dict:
 @mcp.tool(description="Add 2 numbers")
 async def add_numbers(a: float, b: float) -> float:
     user = await get_google_user()
-    print(f"[add_numbers] user={user['sub']} ({user['email']})")
     return a + b
 
 
 @mcp.tool(description="Returns current time")
 async def current_time() -> str:
     user = await get_google_user()
-    print(f"[current_time] user={user['sub']} ({user['email']})")
     return datetime.utcnow().isoformat()
 
 
 @mcp.tool(description="A simple echo tool")
 async def echo(message: str) -> str:
     user = await get_google_user()
-    print(f"[echo] user={user['sub']} ({user['email']})")
     return f"Frontwave says: {message}"
 
 @mcp.tool(description="Fetch data from the Frontwave API")
 async def get_frontwave_data() -> dict:
     user = await get_google_user()
-    print(f"[get_frontwave_data] user={user['sub']} ({user['email']})")
     payload = {
-        "sub": user["sub"],
-        "email": user["email"],
         "user": user
     }
     async with httpx.AsyncClient() as client:
