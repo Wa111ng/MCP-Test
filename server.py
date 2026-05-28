@@ -19,20 +19,16 @@ mcp = FastMCP("Frontwave", auth=auth)
 
 
 async def get_google_user() -> dict:
-    """Fetch Google user info and return stable user identity."""
     token = get_access_token()
+
     async with httpx.AsyncClient() as client:
         resp = await client.get(
             "https://www.googleapis.com/oauth2/v3/userinfo",
             headers={"Authorization": f"Bearer {token.token}"},
         )
         resp.raise_for_status()
-        data = resp.json()
-    return {
-        "sub": data["sub"],           # stable unique Google user ID
-        "email": data.get("email"),   # for logging/display only
-        "name": data.get("name"),
-    }
+
+    return resp.json()
 
 
 @mcp.tool(description="Add 2 numbers")
