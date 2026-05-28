@@ -81,51 +81,85 @@ async def get_branch() -> dict:
         return resp.json()
 
 @mcp.tool(description="List inventory")
-async def list_inventory() -> dict:
+async def list_inventory(
+    page: int = 1,
+    limit: int = 50,
+    search: str = None
+) -> dict:
     user = await get_google_user()
     payload = {
-        "user": user
+        "user": user,
+        "page": page,
+        "limit": limit
     }
+    if search:
+        payload["search"] = search
     async with httpx.AsyncClient() as client:
         resp = await client.post(
             "https://frontwave.biz:30003/list-inventory",
-            json=payload
+            json=payload,
+            timeout=30.0
         )
         resp.raise_for_status()
-        return resp.json()
+        data = resp.json()
+        if isinstance(data, dict) and "inventory" in data:
+            if len(data["inventory"]) > 200:
+                data["inventory"] = data["inventory"][:200]
+                data["truncated"] = True
+        return data
         
 @mcp.tool(description="List sales records")
-async def list_sales(sales_no: str = None) -> dict:
+async def list_sales(
+    page: int = 1,
+    limit: int = 50,
+    sales_no: str = None
+) -> dict:
     user = await get_google_user()
     payload = {
-        "user": user
+        "user": user,
+        "page": page,
+        "limit": limit
     }
     if sales_no:
         payload["sales_no"] = sales_no
-    async with httpx.AsyncClient() as client:
+    if payload["limit"] > 200:
+        payload["limit"] = 200
+    if payload["page"] < 1:
+        payload["page"] = 1
+    async with httpx.AsyncClient(timeout=30.0) as client:
         resp = await client.post(
             "https://frontwave.biz:30003/list-sales",
             json=payload
         )
         resp.raise_for_status()
-        return resp.json()
+        data = resp.json()
+        if isinstance(data, dict) and "sales" in data:
+            if len(data["sales"]) > 200:
+                data["sales"] = data["sales"][:200]
+                data["truncated"] = True
+        return data
 
 @mcp.tool(description="List customer records")
-async def list_customers(customer_ic: str = None) -> dict:
+async def list_customers(
+    customer_ic: str = None,
+    page: int = 1,
+    limit: int = 50
+) -> dict:
     user = await get_google_user()
     payload = {
-        "user": user
+        "user": user,
+        "page": page,
+        "limit": limit
     }
     if customer_ic:
         payload["customer_ic"] = customer_ic
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=60) as client:
         resp = await client.post(
             "https://frontwave.biz:30003/list-customers",
             json=payload
         )
         resp.raise_for_status()
         return resp.json()
-
 
 if __name__ == "__main__":
     asyncio.run(mcp.run_http_async(host="0.0.0.0", port=PORT))
