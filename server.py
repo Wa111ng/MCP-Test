@@ -52,8 +52,8 @@ async def echo(message: str) -> str:
     user = await get_google_user()
     return f"Frontwave says: {message}"
 
-@mcp.tool(description="Fetch data from the Frontwave API")
-async def get_frontwave_data() -> dict:
+@mcp.tool(description="Get the authenticated Google user identity")
+async def who_am_i() -> dict:
     user = await get_google_user()
     payload = {
         "user": user
@@ -61,6 +61,20 @@ async def get_frontwave_data() -> dict:
     async with httpx.AsyncClient() as client:
         resp = await client.post(
             "https://frontwave.biz:30003/health",
+            json=payload
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+@mcp.tool(description="Get branch code and name")
+async def get_branch() -> dict:
+    user = await get_google_user()
+    payload = {
+        "user": user
+    }
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "https://frontwave.biz:30003/get-branch",
             json=payload
         )
         resp.raise_for_status()
